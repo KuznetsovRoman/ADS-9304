@@ -24,8 +24,8 @@ using RBNodeWptr = std::weak_ptr<RBNode<T>>;
 template <typename T>
 struct RBNode {
 	RBNode() = default;
-	RBNode(T data, RBColor color, RBNodeSptr<T> left=nullptr, RBNodeSptr<T> right=nullptr):
-		data(data), color(color), left(left),right(right) {}
+	RBNode(T data, RBColor color, RBNodeSptr<T> left = nullptr, RBNodeSptr<T> right = nullptr) :
+		data(data), color(color), left(left), right(right) {}
 	RBNodeWptr<T> parent;
 	RBNodeSptr<T> left, right;
 	T data = NULL;
@@ -104,7 +104,7 @@ void RBTree<T>::RRight(RBNodeSptr<T> node) {
 }
 
 template <typename T>
-RBTree<T>::RBTree(const std::initializer_list<T>& list) {
+RBTree<T>::RBTree(const std::initializer_list<T> & list) {
 	for (const auto& i : list)
 		insert(i);
 }
@@ -178,7 +178,7 @@ void RBTree<T>::insert(T value) {
 }
 
 template <typename T>
-void RBTree<T>::outputSorted(std::ostream& out) {
+void RBTree<T>::outputSorted(std::ostream & out) {
 	auto pushToOut = [&out](const RBNodeSptr<T> & node, auto && pushToOut) {
 		if (!node)
 			return;
@@ -191,22 +191,27 @@ void RBTree<T>::outputSorted(std::ostream& out) {
 }
 
 template <typename T>
-void RBTree<T>::outputLayers(std::ostream& out) {
-	std::queue<RBNode<T>*> que;
-	out << "RB tree:\n|";
-	que.push(&*root);
-	que.push(nullptr);
-	while (que.size() > 1) {
-		RBNode<T>*& front = que.front();
-		que.pop();
-		if (!front) {
-			out << "\n|";
-			que.push(nullptr);
-			continue;
+void RBTree<T>::outputLayers(std::ostream & out) {
+	auto showTree = [&out](RBNodeSptr<int> root, auto && showTree, int p = 0, int s = 0) {
+		auto showLine = [&out](const char* c, int p, int s) {
+			for (int i = 0; i < p; i++) {
+				out << (s & 1 ? "|  " : "   ");
+				s /= 2;
+			}
+			out<< c;
+		};
+		if (!root) return;
+		out << (root->color==RBColor::RED?"\033[31m":"")<<root->data << "\033[30m\n";
+		if (root->left) {
+			showLine("|\n", p, s); 
+			showLine("L: ", p, s);
+			showTree(root->left, showTree, p + 1, s + ((root->right == NULL ? 0 : 1) << p));
 		}
-		out << front->data << ' ';
-		if (front->left) que.push(&*front->left);
-		if (front->right) que.push(&*front->right);
-	}
-	out << "\n-----\n";
+		if (root->right) {
+			showLine("|\n", p, s); 
+			showLine("R: ", p, s);
+			showTree(root->right, showTree, p + 1, s);
+		}
+	};
+	showTree(root, showTree);
 }

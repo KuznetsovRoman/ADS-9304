@@ -7,6 +7,10 @@
 #include "RBTree.h"
 
 int main() {
+#ifdef _WIN32
+	std::system("color 80");
+#endif
+	std::cout << "\033[30;48m";
 	std::ofstream fstr;
 	fstr.open("res.txt");
 	RBTree<int> tree;
